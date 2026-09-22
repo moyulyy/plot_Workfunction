@@ -1,0 +1,16 @@
+# 示例作业：只保留绘制功函数所需的小体积文件。
+# 体积巨大的原始 VASP 产物（POT / CHGCAR / LOCPOT / vasprun.xml / PROCAR 等，
+# 单个可达上百 MB，超出 GitHub 文件大小限制）不纳入仓库。
+*
+!.gitignore
+!README.md
+!PLANAR_AVERAGE.dat
+!cmd.log
+!OUTCAR
+!POSCAR
+!CONTCAR
+!INCAR
+!KPOINTS
+!POTCAR
+!OSZICAR
+!IBZKPT

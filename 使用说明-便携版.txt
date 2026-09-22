@@ -1,0 +1,30 @@
+WF · 功函数绘图工作台（便携版）
+================================
+
+一、运行
+--------
+双击 WF-Viewer.exe 即可启动，无需安装 Python。
+整个 WF-Viewer 文件夹可随意拷贝到其它 Windows 电脑使用（建议保持目录完整）。
+
+小技巧：也可以把作业文件夹作为参数传给 exe，启动后自动加载：
+    WF-Viewer.exe "D:\path\to\workfunction"
+
+二、使用方法
+------------
+1. 点击右侧「选择作业文件夹」，选择包含 PLANAR_AVERAGE.dat 的 VASP 功函数作业目录；
+   程序会自动读取：
+       PLANAR_AVERAGE.dat   平面平均势曲线（必需）
+       cmd.log              E-fermi / Vacuum-Level / Work Function（推荐）
+       OUTCAR / vasprun.xml E_F 兜底
+       POSCAR / CONTCAR     晶格 c 方向长度（可选）
+2. 左栏显示平面平均势 V(z) 曲线，并标注 Fermi level、vacuum level 与功函数 Φ = V_vac − E_F。
+3. 右栏「曲线参数」可调整横/纵轴区间与刻度、费米/真空能级、线宽、颜色等，点击「重新绘制」生效。
+4. 点击右下角「保存图片」导出 300 dpi 图片（PNG / PDF / SVG / JPEG）。
+
+三、说明
+--------
+- 功函数定义：Φ = V_vacuum − E_Fermi。
+- 真空能级与功函数优先取自 cmd.log（与 vaspkit 426 输出一致）；
+  若 cmd.log 缺失，则取曲线两端平台较高一侧的平均作为真空能级。
+- 若提示「未找到 PLANAR_AVERAGE.dat」，请先在该作业目录执行：
+      echo -e "426\n3" | vaspkit        （3 表示沿 c 方向）
