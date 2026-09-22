@@ -53,8 +53,8 @@
 计算与绘图流程（与 `Web_Probe` 后端及 `workfunction-bot` 约定一致）：
 
 1. **VASP 单点自洽**：INCAR 打开 `LVHAR = .TRUE.`、`LDIPOL = .TRUE.`、`IDIPOL = 3`（配 `NSW = 0`、`IBRION = -1`），输出偶极校正的局域势 `LOCPOT`；
-2. **vaspkit 426**（Potential Analysis）沿 **c 方向** 做平面平均，得到 `PLANAR_AVERAGE.dat`（`z(Å)` 与 `平面平均势(eV)`）；
-3. 同时 `cmd.log` 会写入 `Vacuum-Level`、`Work Function`、`E-fermi`；
+2. **vaspkit 426**（Potential Analysis）沿 **c 方向** 做平面平均，得到 `PLANAR_AVERAGE.dat`（`z(Å)` 与 `平面平均势(eV)`）—— 仓库中的 [`cworkfunction.sh`](cworkfunction.sh) 已封装该步骤；
+3. 同时 `cmd.log` 会写入 `Vacuum-Level`、`Work Function`、`E-fermi`（脚本还会把 `OUTCAR` 中的 `E-fermi` 追加进去）；
 4. 本程序优先从 `cmd.log` 检索上述数值，检索不到时：
 
    - `E_F` 依次从 `OUTCAR`（`E-fermi :`）→ `vasprun.xml`（`<i name="efermi">`）读取；
@@ -75,6 +75,27 @@
 | `vasprun.xml` | ⭕ 可选 | `E_F` 的进一步兜底 |
 | `POSCAR` / `CONTCAR` | ⭕ 可选 | 晶格 c 方向长度、原子数、化学式 |
 | `LOCPOT` | ⭕ 可选 | 仅在数据源信息中展示 |
+
+### 计算节点后处理脚本 `cworkfunction.sh`
+
+在计算节点完成 VASP 单点后，把仓库中的 [`cworkfunction.sh`](cworkfunction.sh) 放到作业目录并执行，
+即可一键生成绘图所需的 `PLANAR_AVERAGE.dat` 与 `cmd.log`：
+
+```bash
+cd <作业目录>
+bash cworkfunction.sh
+```
+
+脚本内容：
+
+```bash
+# 426 = Potential Analysis，3 = Lattice c Direction
+echo -e "426\n3" | vaspkit > cmd.log
+grep fermi OUTCAR | tail -1 >> cmd.log   # 追加 E-fermi
+```
+
+> [!TIP]
+> 执行完成后，用「选择作业文件夹」选中该目录（或 `WF-Viewer.exe <作业目录>`）即可得到功函数曲线。
 
 ---
 
@@ -191,6 +212,7 @@ plot_Workfunction/
 ├── WF-Viewer.spec          # PyInstaller 打包配置
 ├── build_portable.bat      # 一键打包成便携程序包
 ├── run_wf_viewer.bat       # 源码启动脚本
+├── cworkfunction.sh        # 计算节点后处理：vaspkit 426 → PLANAR_AVERAGE.dat / cmd.log
 ├── requirements.txt        # 运行依赖
 ├── requirements-build.txt  # 打包依赖
 ├── 使用说明-便携版.txt      # 便携版随附说明
